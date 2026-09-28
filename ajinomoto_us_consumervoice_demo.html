@@ -35811,23 +35811,6 @@ function PX() {
           }),
         ],
       }),
-      b.jsxs("div", {
-        className: "notice warn",
-        children: [
-          b.jsx($u, { size: 14 }),
-          b.jsxs("span", {
-            children: [
-              b.jsx("strong", { children: "会話の主戦場は南アジア圏です。" }),
-              o.comments,
-              "件中 ",
-              b.jsxs("strong", { className: "mono", children: [g.southAsia, "件（", We(g.southAsiaRate), "）"] }),
-              "がインド・ネパール等のサブレディット（r/MalayalamMovies, r/mumbai, r/IndianFood 等）から来ています。 本ダッシュボードは米国生活者を対象としているため、 このReddit群は",
-              b.jsx("strong", { children: "米国の発話としてではなく、MSGをめぐるグローバルな議論構造として" }),
-              "読む必要があります。",
-            ],
-          }),
-        ],
-      }),
       b.jsx(d0, {
         tabs: [
           { id: "overview", label: "会話構造" },
@@ -37623,66 +37606,6 @@ function iW() {
           })
         : b.jsxs(b.Fragment, {
             children: [
-              b.jsx(ht, {
-                title: "優先度マトリクス",
-                subtitle: "X軸: AjinomotoへのImpact / Y軸: Consumer Relevance。円の大きさ＝優先度。",
-                style: { marginBottom: 12 },
-                children: b.jsx(_p, {
-                  width: "100%",
-                  height: 300,
-                  children: b.jsxs(uX, {
-                    margin: { top: 10, right: 20, bottom: 14, left: -8 },
-                    children: [
-                      b.jsx(ed, { strokeDasharray: "3 3", stroke: "#EEF0F7" }),
-                      b.jsx(rd, {
-                        type: "number",
-                        dataKey: "impact",
-                        name: "Impact",
-                        domain: [30, 100],
-                        tick: { fontSize: 10, fill: "#6B7099" },
-                        label: { value: "Impact for Ajinomoto →", position: "insideBottom", offset: -6, fontSize: 10, fill: "#6B7099" },
-                      }),
-                      b.jsx(ad, {
-                        type: "number",
-                        dataKey: "relevance",
-                        name: "Relevance",
-                        domain: [30, 100],
-                        tick: { fontSize: 10, fill: "#6B7099" },
-                        label: {
-                          value: "Consumer Relevance →",
-                          angle: -90,
-                          position: "insideLeft",
-                          offset: 18,
-                          fontSize: 10,
-                          fill: "#6B7099",
-                        },
-                      }),
-                      b.jsx(iC, { type: "number", dataKey: "size", range: [110, 340] }),
-                      b.jsx(qp, {
-                        cursor: { strokeDasharray: "3 3" },
-                        contentStyle: { fontSize: 11, borderRadius: 8, border: "1px solid #E4E6F0", maxWidth: 260 },
-                        formatter: (A, w, j) => {
-                          const E = j?.payload;
-                          return E ? [`${E.category} · ${E.priority}`, E.title] : ["", ""];
-                        },
-                      }),
-                      b.jsx(rC, {
-                        data: g.map((A) => ({ ...A, size: A.priority === "High" ? 3 : A.priority === "Medium" ? 2 : 1 })),
-                        children: g.map((A) =>
-                          b.jsx(
-                            uo,
-                            {
-                              fill: A.priority === "High" ? "#D71920" : A.priority === "Medium" ? "#E4B23C" : "#9AA0BE",
-                              fillOpacity: 0.75,
-                            },
-                            A.id,
-                          ),
-                        ),
-                      }),
-                    ],
-                  }),
-                }),
-              }),
               b.jsx("div", {
                 className: "grid-2",
                 children: g.map((A) =>
