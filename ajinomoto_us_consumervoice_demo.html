@@ -36989,42 +36989,97 @@ function OC(e) {
 }
 const jC = (e) => f0(e),
   KX = [
-    "Ajinomotoについてどう思っていますか？",
-    "MSGについてどう感じていますか？",
-    "AjinomotoがHealthcare企業だと知っていますか？",
-    "どんな情報があればブランドへの理解が深まりますか？",
+    "AjinomotoのCDMO・バイオ医薬事業をどう見ていますか？",
+    "ABF（半導体パッケージ材）でのAjinomotoの存在感をどう評価していますか？",
+    "ICT・半導体分野でAjinomotoに期待すること、懸念することは？",
+    "投資対象としてAjinomotoをどう評価していますか？",
   ];
 function qX(e) {
   const t = e.toLowerCase();
-  return /msg|グルタミン|添加物|monosodium/.test(t)
-    ? "msg"
-    : /healthcare|ヘルスケア|医薬|pharma|bio|アミノ酸/.test(t)
-      ? "healthcare"
-      : /情報|理解|知りたい|information|understand/.test(t)
-        ? "information"
-        : /どう思|印象|ブランド|brand|think/.test(t)
-          ? "brand"
-          : "general";
+  return /cdmo|バイオ|医薬|pharma|biotech|biologics|受託/.test(t)
+    ? "cdmo"
+    : /abf|半導体|semiconductor|\bchip|ict|パッケージ|基板|substrate/.test(t)
+      ? "semiconductor"
+      : /投資|株|決算|invest|stock|earnings|valuation|バリュエーション/.test(t)
+        ? "investment"
+        : /msg|グルタミン|添加物|monosodium/.test(t)
+          ? "msg"
+          : /healthcare|ヘルスケア|アミノ酸/.test(t)
+            ? "healthcare"
+            : /情報|理解|知りたい|information|understand/.test(t)
+              ? "information"
+              : /どう思|印象|ブランド|brand|think/.test(t)
+                ? "brand"
+                : "general";
 }
 const np = (e) =>
-  e <= -30 ? "かなり否定的に見ています" : e < 0 ? "どちらかといえば懐疑的です" : e < 20 ? "中立に近い見方です" : "肯定的に受け止めています";
+    e <= -30 ? "かなり否定的に見ています" : e < 0 ? "どちらかといえば懐疑的です" : e < 20 ? "中立に近い見方です" : "肯定的に受け止めています",
+  tp0 = (e) => `${e > 0 ? "+" : ""}${e}`,
+  rp0 = /earnings|revenue|profit|guidance|\bstocks?\b|\bshares\b|invest|valuation|market cap|\b2802\b|AJINF|AJNMY|portfolio|nikkei/i;
 function YX(e, t) {
   const n = qX(t),
     r = e.sentiment.netSentiment,
     l = e.topCategories.map((h) => Qn(h.id)).join("・") || "—",
     o = e.topTerms.slice(0, 5).join(", ") || "—",
-    s = e.representativeVoices[0],
-    f = e.representativeVoices.map((h) => h.id);
-  let d;
+    f = e.representativeVoices.map((h) => h.id),
+    N = e.postCount,
+    byCat = (id) => e.posts.filter((p) => p.category === id),
+    terms = (ps) => wC(ps, 5).map((w) => w.term).join(", ") || "—";
+  let d,
+    pool = e.representativeVoices;
   switch (n) {
+    case "cdmo": {
+      const ps = byCat("biotech_cdmo"),
+        sc = Yi(ps),
+        hs = byCat("healthcare_science_other");
+      pool = ps.length ? sd(ps, 3, "engagement") : pool;
+      d = ps.length
+        ? `${e.viewOfAjinomoto}
+この層の ${N} 件のうち、バイオテクノロジー（CDMO）文脈で語っている投稿は ${ps.length} 件（${Math.round((ps.length / N) * 100)}%）で、その論調は ${np(sc.netSentiment)}（Net ${tp0(sc.netSentiment)}、Positive ${sc.positiveRate}% / Negative ${sc.negativeRate}%）。
+実際の投稿でよく出る語は ${terms(ps)} で、Ajinomoto固有の技術より、CDMO市場や同業の動きの中で名前が挙がる形が中心です。${hs.length ? `そのほかアミノ酸・栄養など周辺のヘルスケア・サイエンス文脈が ${hs.length} 件あります。` : ""}
+知りたいのは「${e.needs}」です。`
+        : `正直なところ、私の層はCDMO・バイオ医薬の文脈ではほとんど語っていません（該当 0 / ${N} 件）。
+${e.viewOfAjinomoto}
+語っている中心は ${l} なので、バイオ医薬の実績を聞かされても、まず「なぜ食品会社が？」という説明から必要になります。`;
+      break;
+    }
+    case "semiconductor": {
+      const ps = byCat("ict_semiconductor"),
+        sc = Yi(ps);
+      pool = ps.length ? sd(ps, 3, "engagement") : pool;
+      d = ps.length
+        ? `${e.viewOfAjinomoto}
+この層の ${N} 件のうち、ICT（半導体）文脈の投稿は ${ps.length} 件（${Math.round((ps.length / N) * 100)}%）。論調は ${np(sc.netSentiment)}（Net ${tp0(sc.netSentiment)}、Positive ${sc.positiveRate}% / Negative ${sc.negativeRate}%）です。
+頻出語は ${terms(ps)}。期待しているのは「${e.needs}」、懸念しているのは「${e.concerns}」です。`
+        : `私の層はABFや半導体の文脈でAjinomotoを語っていません（該当 0 / ${N} 件）。
+${e.viewOfAjinomoto}
+半導体の話を聞いても、${l} で語っている自分の関心とはすぐには結びつきません。`;
+      break;
+    }
+    case "investment": {
+      const ps = e.posts.filter((p) => rp0.test(`${p.title} ${p.content || p.snippet}`)),
+        sc = Yi(ps),
+        ict = ps.filter((p) => p.category === "ict_semiconductor").length,
+        bio = ps.filter((p) => p.category === "biotech_cdmo").length;
+      pool = ps.length ? sd(ps, 3, "engagement") : pool;
+      d = ps.length
+        ? `この層の ${N} 件のうち、決算・株価・投資の文脈を含む投稿は ${ps.length} 件（${Math.round((ps.length / N) * 100)}%）で、論調は ${np(sc.netSentiment)}（Net ${tp0(sc.netSentiment)}）。
+投資文脈の内訳は、ICT（半導体）関連が ${ict} 件、バイオテクノロジー（CDMO）関連が ${bio} 件、それ以外（企業全体・決算）が ${ps.length - ict - bio} 件です。
+${e.viewOfAjinomoto}
+判断材料として欲しいのは「${e.needs}」、引っかかっているのは「${e.concerns}」です。`
+        : `私の層は投資対象としてAjinomotoを語っていません（該当 0 / ${N} 件）。
+${e.viewOfAjinomoto}
+語っている中心は ${l} で、株価や決算は関心の外にあります。`;
+      break;
+    }
     case "msg":
       d = `私の関心は${l}に集中していて、実際の投稿では ${o} といった語がよく出ます。
-MSGについては、この層全体としては ${np(r)}（Net Sentiment ${r > 0 ? "+" : ""}${r}、Positive ${e.sentiment.positiveRate}% / Negative ${e.sentiment.negativeRate}%）。
+MSGについては、この層全体としては ${np(r)}（Net Sentiment ${tp0(r)}、Positive ${e.sentiment.positiveRate}% / Negative ${e.sentiment.negativeRate}%）。
 懸念しているのは「${e.concerns}」です。`;
       break;
     case "healthcare":
       d = `${e.viewOfAjinomoto}
-この層の発話 ${e.postCount} 件のうち、主なカテゴリは ${l} です。ヘルスケア／サイエンス文脈をどれだけ持っているかは、この構成比がそのまま答えになります。`;
+この層の発話 ${N} 件のうち、主なカテゴリは ${l} です。ヘルスケア・サイエンス文脈をどれだけ持っているかは、この構成比がそのまま答えになります。`;
       break;
     case "information":
       d = `欲しいのは「${e.needs}」です。
@@ -37032,19 +37087,26 @@ MSGについては、この層全体としては ${np(r)}（Net Sentiment ${r > 
       break;
     case "brand":
       d = `${e.viewOfAjinomoto}
-この層は ${np(r)}（対象 ${e.postCount} 投稿、Net ${r > 0 ? "+" : ""}${r}）。語られている中心は ${l} です。`;
+この層は ${np(r)}（対象 ${N} 投稿、Net ${tp0(r)}）。語られている中心は ${l} です。`;
       break;
     default:
       d = `この層は ${l} を中心に語っていて、頻出語は ${o} です。
 全体としては ${np(r)}。求めているのは「${e.needs}」、引っかかっているのは「${e.concerns}」です。`;
   }
+  const s = pool[0];
   if (s) {
     const h = (s.content || s.snippet).slice(0, 160);
     d += `
 
-実際の投稿の例：「${h}${h.length >= 160 ? "…" : ""}」`;
+実際の投稿の例：「${h}${h.length >= 160 ? "…" : ""}」${s.contentJa ? `
+（日本語訳：${s.contentJa.slice(0, 120)}${s.contentJa.length > 120 ? "…" : ""}）` : ""}`;
   }
-  return { role: "persona", content: d, evidence: f, note: `Mock Mode — ${e.postCount} 件の実投稿の集計と代表投稿から生成。LLM未接続。` };
+  return {
+    role: "persona",
+    content: d,
+    evidence: pool.map((h) => h.id).concat(f),
+    note: `Mock Mode — ${e.postCount} 件の実投稿の集計と代表投稿から生成。LLM未接続。`,
+  };
 }
 async function FX(e, t, n) {
   return (await new Promise((r) => setTimeout(r, 320)), YX(e, n));
@@ -37171,7 +37233,7 @@ function WX() {
             children: [
               b.jsx("strong", { children: XX }),
               b.jsx("br", {}),
-              "ペルソナは実在人物の再現ではなく、複数投稿・複数ユーザーの傾向を統合したSynthetic Personaです。 投稿数・構成比・Sentiment・頻出語・Representative Voiceは実データの集計値、 Needs / Concerns / View of Ajinomoto は分析者による解釈レイヤーです。",
+              "ペルソナは実在人物の再現ではなく、複数投稿・複数ユーザーの傾向を統合したSynthetic Personaです。 投稿数・構成比・Sentiment・頻出語・Representative Voiceは実データの集計値です。",
             ],
           }),
         ],
